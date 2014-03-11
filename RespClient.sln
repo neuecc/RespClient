@@ -5,13 +5,10 @@ VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespClient", "RespClient\RespClient.csproj", "{B58B0163-5CCF-4566-95FF-5FB7B8FA7CB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespClient.Cmdlet", "RespClient.Cmdlet\RespClient.Cmdlet.csproj", "{089990B7-4467-451A-A431-31C3FA0A9E51}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{509C8E3E-E15B-457A-B090-4DF4898A39BB}"
 	ProjectSection(SolutionItems) = preProject
 		NuGet\pack.bat = NuGet\pack.bat
 		NuGet\push.bat = NuGet\push.bat
-		NuGet\RespClient.Cmdlet.nuspec = NuGet\RespClient.Cmdlet.nuspec
 		NuGet\RespClient.nuspec = NuGet\RespClient.nuspec
 	EndProjectSection
 EndProject
@@ -25,10 +22,6 @@ Global
 		{B58B0163-5CCF-4566-95FF-5FB7B8FA7CB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B58B0163-5CCF-4566-95FF-5FB7B8FA7CB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B58B0163-5CCF-4566-95FF-5FB7B8FA7CB6}.Release|Any CPU.Build.0 = Release|Any CPU
-		{089990B7-4467-451A-A431-31C3FA0A9E51}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{089990B7-4467-451A-A431-31C3FA0A9E51}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{089990B7-4467-451A-A431-31C3FA0A9E51}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{089990B7-4467-451A-A431-31C3FA0A9E51}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -9,22 +9,17 @@ What's the diferrence between other .NET Redis Client
 
 Install
 ---
-Binary was registered at NuGet, [RespClient](https://www.nuget.org/packages/RespClient/) and [RespClient.Cmdlet](https://www.nuget.org/packages/RespClient.Cmdlet/).
+Binary was registered at NuGet, [RespClient](https://www.nuget.org/packages/RespClient/).
 ```
-# Standalone PowerShell Commandlet 
-PM> Install-Package RespClient.Cmdlet
-
-# .NET Library
+# Standalone PowerShell Commandlet and .NET Client, requires System.Management.Automation
 PM> Install-Package RespClient
 ```
 
-RespClient.Cmdlet
+PowerShell Commandlet
 ---
-RespClient.Cmdlet works stand-alone.
-
 ```PowerShell
 # Module is provided by dll 
-Import-Module RespClient.Cmdlet.dll
+Import-Module RespClient.dll
 
 # Connect to RedisServer. Connection is effective during powershell session.
 # other parameter, -Host, -Port, -Timeout

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
         <id>RespClient</id>
-        <version>1.0.0</version>
+        <version>1.1.0</version>
         <title>RespClient</title>
         <authors>neuecc</authors>
         <owners>neuecc</owners>
@@ -11,9 +11,9 @@
         <language>en-US</language>
         <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
         <projectUrl>https://github.com/neuecc/RespClient</projectUrl>
-        <tags>Redis</tags>
+        <tags>Redis PowerShell Cmdlet</tags>
     </metadata>
     <files>
-        <file src="..\RespClient\bin\Release\RespClient.dll" target="lib" />
+        <file src="..\RespClient\bin\Release\RespClient.dll" target="content" />
     </files>
 </package>
