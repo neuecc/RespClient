@@ -9,7 +9,7 @@ What's the diferrence between other .NET Redis Client
 
 Install
 ---
-Binary was registered at NuGet, [RespClient](https://www.nuget.org/packages/RespClient/).
+Binary is registered at NuGet, [RespClient](https://www.nuget.org/packages/RespClient/).
 ```
 # Standalone PowerShell Commandlet and .NET Client, requires System.Management.Automation
 PM> Install-Package RespClient
