@@ -48,7 +48,7 @@ If use raw RespClient, you can send binary value and choose other decoder(beside
 using (var client = new Redis.Protocol.RespClient())
 {
     // string command
-    client.SendCommand("set 1", Encoding.UTF8.GetString);
+    client.SendCommand("set a 100", Encoding.UTF8.GetString);
 
     // binary safe command
     client.SendCommand("set", new[] { Encoding.UTF8.GetBytes("test"), Encoding.UTF8.GetBytes("abcde") }, Encoding.UTF8.GetString);
