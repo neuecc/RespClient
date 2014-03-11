@@ -9,5 +9,6 @@ namespace Redis.PowerShell
     public static class Global
     {
         public static Redis.Protocol.RespClient RespClient;
+        public static Redis.Protocol.RespClient.PipelineCommand PipelineCommand;
     }
 }

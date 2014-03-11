@@ -84,24 +84,28 @@ namespace Redis.Protocol
             return sb.ToString();
         }
 
-        string BuildBinarySafeCommand(string command, string[] arguments)
+        byte[] BuildBinarySafeCommand(string command, byte[][] arguments)
         {
-            var sendCommand = (char)RespType.Arrays + (arguments.Length + 1).ToString() + TerminateStrings
-                + (char)RespType.BulkStrings + Encoding.GetBytes(command).Length.ToString() + TerminateStrings + command + TerminateStrings
-                + string.Join(TerminateStrings, arguments.Select(x => (char)RespType.BulkStrings + Encoding.GetBytes(x).Length.ToString() + TerminateStrings + x))
-                + TerminateStrings;
-            return sendCommand;
+            var firstLine = Encoding.GetBytes((char)RespType.Arrays + (arguments.Length + 1).ToString() + TerminateStrings);
+            var secondLine = Encoding.GetBytes((char)RespType.BulkStrings + Encoding.GetBytes(command).Length.ToString() + TerminateStrings + command + TerminateStrings);
+            var thirdLine = arguments.Select(x =>
+            {
+                var head = Encoding.GetBytes((char)RespType.BulkStrings + x.Length.ToString() + TerminateStrings);
+                return head.Concat(x).Concat(Encoding.GetBytes(TerminateStrings)).ToArray();
+            })
+            .ToArray();
+
+            return new[] { firstLine, secondLine }.Concat(thirdLine).SelectMany(xs => xs).ToArray();
         }
 
-        void SendRequest(string command)
+        void SendRequest(byte[] command)
         {
             if (socket == null) Connect();
             if (socket == null) throw new Exception("Socket can't connect");
 
-            var bytes = Encoding.GetBytes(command);
             try
             {
-                socket.Send(bytes);
+                socket.Send(command);
             }
             catch (SocketException)
             {
@@ -189,18 +193,18 @@ namespace Redis.Protocol
         public object SendCommand(string command, Func<byte[], object> binaryDecoder)
         {
             // Request
-            SendRequest(command + TerminateStrings);
+            SendRequest(Encoding.GetBytes(command + TerminateStrings));
 
             // Response
             return FetchResponse(binaryDecoder);
         }
 
-        public object SendCommand(string command, string[] arguments)
+        public object SendCommand(string command, params byte[][] arguments)
         {
             return SendCommand(command, arguments, null);
         }
 
-        public object SendCommand(string command, string[] arguments, Func<byte[], object> binaryDecoder)
+        public object SendCommand(string command, byte[][] arguments, Func<byte[], object> binaryDecoder)
         {
             var sendCommand = BuildBinarySafeCommand(command, arguments);
 
@@ -245,7 +249,7 @@ namespace Redis.Protocol
         public class PipelineCommand
         {
             readonly RespClient client;
-            readonly List<Tuple<string, Func<byte[], object>>> commands = new List<Tuple<string, Func<byte[], object>>>();
+            readonly List<Tuple<byte[], Func<byte[], object>>> commands = new List<Tuple<byte[], Func<byte[], object>>>();
 
             internal PipelineCommand(RespClient client)
             {
@@ -254,22 +258,22 @@ namespace Redis.Protocol
 
             public PipelineCommand QueueCommand(string command)
             {
-                commands.Add(Tuple.Create(command + TerminateStrings, (Func<byte[], object>)null));
+                commands.Add(Tuple.Create(Encoding.GetBytes(command + TerminateStrings), (Func<byte[], object>)null));
                 return this;
             }
 
             public PipelineCommand QueueCommand(string command, Func<byte[], object> binaryDecoder)
             {
-                commands.Add(Tuple.Create(command + TerminateStrings, binaryDecoder));
+                commands.Add(Tuple.Create(Encoding.GetBytes(command + TerminateStrings), binaryDecoder));
                 return this;
             }
 
-            public PipelineCommand QueueCommand(string command, string[] arguments)
+            public PipelineCommand QueueCommand(string command, params byte[][] arguments)
             {
                 return QueueCommand(command, arguments, null);
             }
 
-            public PipelineCommand QueueCommand(string command, string[] arguments, Func<byte[], object> binaryDecoder)
+            public PipelineCommand QueueCommand(string command, byte[][] arguments, Func<byte[], object> binaryDecoder)
             {
                 var sendCommand = client.BuildBinarySafeCommand(command, arguments);
 
@@ -280,7 +284,7 @@ namespace Redis.Protocol
             public object[] Execute()
             {
                 // Request
-                client.SendRequest(string.Concat(commands.Select(x => x.Item1)));
+                client.SendRequest(commands.SelectMany(x => x.Item1).ToArray());
 
                 // Response
                 var result = new object[commands.Count];

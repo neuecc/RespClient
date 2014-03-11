@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+    <metadata>
+        <id>RespClient.Cmdlet</id>
+        <version>1.0.0</version>
+        <title>RespClient.Cmdlet</title>
+        <authors>neuecc</authors>
+        <owners>neuecc</owners>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>RespClient is a minimal RESP(REdis Serialization Protocol) client for C# and PowerShell.</description>
+        <language>en-US</language>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <projectUrl>https://github.com/neuecc/RespClient</projectUrl>
+        <tags>Redis PowerShell Cmdlet</tags>
+    </metadata>
+    <files>
+        <file src="..\RespClient.Cmdlet\bin\Release\RespClient.Cmdlet.dll" target="content" />
+    </files>
+</package>

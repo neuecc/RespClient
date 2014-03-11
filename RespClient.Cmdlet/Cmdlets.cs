@@ -41,21 +41,57 @@ namespace Redis.PowerShell
         }
     }
 
-    // TODO:Command Arguments
     [Cmdlet("Send", "RedisCommand")]
     public class SendCommand : Cmdlet
     {
-        [Parameter(ParameterSetName = "Command", Position = 0, Mandatory = true)]
+        [Parameter(ParameterSetName = "Command", Position = 0, Mandatory = true, ValueFromPipeline = true)]
         public string Command { get; set; }
 
         protected override void ProcessRecord()
         {
-            if (Global.RespClient == null) throw new InvalidOperationException();
+            if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
 
-            var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
-            this.WriteObject(value);
+            if (Global.PipelineCommand == null)
+            {
+                var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
+                this.WriteObject(value);
+            }
+            else
+            {
+                // pipeline mode
+                Global.PipelineCommand.QueueCommand(Command, x => Encoding.UTF8.GetString(x));
+            }
         }
     }
 
-    // TODO:UsePipeline, ExecutePipeline
+    [Cmdlet("Begin", "RedisPipeline")]
+    public class BeginPipeline : Cmdlet
+    {
+        protected override void BeginProcessing()
+        {
+            if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
+            if (Global.PipelineCommand != null) throw new InvalidOperationException("Pipeline is always beginning");
+
+            Global.PipelineCommand = Global.RespClient.UsePipeline();
+        }
+    }
+
+    [Cmdlet("Execute", "RedisPipeline")]
+    public class ExecutePipeline : Cmdlet
+    {
+        protected override void ProcessRecord()
+        {
+            if (Global.PipelineCommand == null) throw new InvalidOperationException("Pipeline is not beginning");
+
+            try
+            {
+                var results = Global.PipelineCommand.Execute();
+                this.WriteObject(results);
+            }
+            finally
+            {
+                Global.PipelineCommand = null;
+            }
+        }
+    }
 }
