@@ -1,1 +1,1 @@
-nuget push RespClient.1.1.0.nupkg
+nuget push RespClient.1.1.1.nupkg
