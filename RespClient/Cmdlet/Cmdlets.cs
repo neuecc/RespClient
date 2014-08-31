@@ -8,13 +8,13 @@ namespace Redis.PowerShell.Cmdlet
     [Cmdlet("Connect", "RedisServer")]
     public class ConnectRedisServer : System.Management.Automation.Cmdlet
     {
-        [Parameter(ParameterSetName = "Host", Mandatory = false, Position = 0)]
+        [Parameter(Mandatory = false, Position = 0)]
         public string Host { get; set; }
 
-        [Parameter(ParameterSetName = "Port", Mandatory = false, Position = 1)]
+        [Parameter(Mandatory = false, Position = 1)]
         public int? Port { get; set; }
 
-        [Parameter(ParameterSetName = "IoTimeout", Mandatory = false, Position = 2)]
+        [Parameter(Mandatory = false, Position = 2)]
         public int? IoTimeout { get; set; }
 
         protected override void BeginProcessing()
