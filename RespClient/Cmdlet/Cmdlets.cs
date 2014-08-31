@@ -28,6 +28,18 @@ namespace Redis.PowerShell.Cmdlet
         }
     }
 
+    [Cmdlet("Get", "RedisCurrentInfo")]
+    public class GetRedisCurrentInfo : System.Management.Automation.Cmdlet
+    {
+        protected override void BeginProcessing()
+        {
+            if (Global.RespClient != null)
+            {
+                this.WriteObject(Global.RespClient);
+            }
+        }
+    }
+
     [Cmdlet("Disconnect", "RedisServer")]
     public class DisconnectRedisServer : System.Management.Automation.Cmdlet
     {

@@ -25,6 +25,10 @@ namespace Redis.Protocol
         readonly int port;
         readonly int ioTimeout;
 
+        public string Host { get { return host; } }
+        public int Port { get { return port; } }
+        public int IoTimeout { get { return ioTimeout; } }
+
         Socket socket;
         BufferedStream stream;
 
