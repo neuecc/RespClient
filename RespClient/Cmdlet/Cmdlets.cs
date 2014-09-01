@@ -8,13 +8,15 @@ namespace Redis.PowerShell.Cmdlet
     [Cmdlet("Connect", "RedisServer")]
     public class ConnectRedisServer : System.Management.Automation.Cmdlet
     {
-        [Parameter(Mandatory = false, Position = 0)]
+        [Alias("IPAddress", "ComputerName")]
+        [Parameter(Mandatory = false, Position = 0, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         public string Host { get; set; }
 
-        [Parameter(Mandatory = false, Position = 1)]
+        [Parameter(Mandatory = false, Position = 1, ValueFromPipelineByPropertyName = true)]
         public int? Port { get; set; }
 
-        [Parameter(Mandatory = false, Position = 2)]
+        [Alias("Timeout")]
+        [Parameter(Mandatory = false, Position = 2, ValueFromPipelineByPropertyName = true)]
         public int? IoTimeout { get; set; }
 
         protected override void BeginProcessing()
@@ -56,7 +58,7 @@ namespace Redis.PowerShell.Cmdlet
     [Cmdlet("Send", "RedisCommand")]
     public class SendCommand : System.Management.Automation.Cmdlet
     {
-        [Parameter(ParameterSetName = "Command", Position = 0, Mandatory = true, ValueFromPipeline = true)]
+        [Parameter(ParameterSetName = "Command", Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         public string Command { get; set; }
 
         protected override void ProcessRecord()
