@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Redis.PowerShell.Cmdlet
 {
-    [Cmdlet("Connect", "RedisServer")]
+    [Cmdlet(VerbsCommunications.Connect, "RedisServer")]
     public class ConnectRedisServer : System.Management.Automation.Cmdlet
     {
         [Alias("IPAddress", "ComputerName")]
@@ -30,7 +30,7 @@ namespace Redis.PowerShell.Cmdlet
         }
     }
 
-    [Cmdlet("Get", "RedisCurrentInfo")]
+    [Cmdlet(VerbsCommon.Get, "RedisCurrentInfo")]
     public class GetRedisCurrentInfo : System.Management.Automation.Cmdlet
     {
         protected override void BeginProcessing()
@@ -42,7 +42,7 @@ namespace Redis.PowerShell.Cmdlet
         }
     }
 
-    [Cmdlet("Disconnect", "RedisServer")]
+    [Cmdlet(VerbsCommunications.Disconnect, "RedisServer")]
     public class DisconnectRedisServer : System.Management.Automation.Cmdlet
     {
         protected override void BeginProcessing()
@@ -55,7 +55,7 @@ namespace Redis.PowerShell.Cmdlet
         }
     }
 
-    [Cmdlet("Send", "RedisCommand")]
+    [Cmdlet(VerbsCommunications.Send, "RedisCommand")]
     public class SendCommand : System.Management.Automation.Cmdlet
     {
         [Parameter(ParameterSetName = "Command", Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
@@ -78,7 +78,7 @@ namespace Redis.PowerShell.Cmdlet
         }
     }
 
-    [Cmdlet("Send", "RedisPipelineCommand")]
+    [Cmdlet(VerbsCommunications.Send, "RedisPipelineCommand")]
     public class PipelineCommand : System.Management.Automation.Cmdlet
     {
         [Parameter(ParameterSetName = "Command", Position = 0, Mandatory = true, ValueFromPipeline = true)]
