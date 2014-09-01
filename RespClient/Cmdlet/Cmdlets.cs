@@ -76,32 +76,6 @@ namespace Redis.PowerShell.Cmdlet
         }
     }
 
-    [Cmdlet("Send", "RedisPipelineCommand")]
-    public class PipelineCommand : System.Management.Automation.Cmdlet
-    {
-        [Parameter(ParameterSetName = "Command", Position = 0, Mandatory = true, ValueFromPipeline = true)]
-        public string[] Command { get; set; }
-
-        protected override void ProcessRecord()
-        {
-            if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
-            if (Global.PipelineCommand != null) throw new InvalidOperationException("pipeline already created. Please execute current pipeline before use this cmdlet.");
-
-            // pipeline mode
-            Global.PipelineCommand = Global.RespClient.UsePipeline();
-            foreach (var c in Command) Global.PipelineCommand.QueueCommand(c, x => Encoding.UTF8.GetString(x));
-            try
-            {
-                var results = Global.PipelineCommand.Execute();
-                this.WriteObject(results);
-            }
-            finally
-            {
-                Global.PipelineCommand = null;
-            }
-        }
-    }
-    
     [Cmdlet("Begin", "RedisPipeline")]
     public class BeginPipeline : System.Management.Automation.Cmdlet
     {
