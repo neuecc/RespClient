@@ -337,7 +337,7 @@ namespace Redis.Protocol
                         var split = kv[1].Split(valueDelimiter);
                         if (split.Length == 1) return (object)split[0];
                         return split.Select(x => x.Split(valueDicDelimiter))
-                            .ToDictionary(xs => xs[0], xs => xs[1]) //.Select(xs => Tuple.Create(xs[0], xs[1]))
+                            .Select(xs => Tuple.Create(xs[0], xs[1]))
                             .ToArray();
                     });
                 return dic;
