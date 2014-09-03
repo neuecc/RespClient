@@ -303,5 +303,45 @@ namespace Redis.Protocol
                 return result;
             }
         }
+
+        public class InfoCommand
+        {
+            readonly string carriageReturn = "\r\n";
+            readonly char delimiter = ':';
+            readonly char valueDelimiter = ',';
+            readonly char valueDicDelimiter = '=';
+
+            /// <summary>
+            /// Split Redis return string to string[] with Carriage Return
+            /// </summary>
+            /// <param name="source">input Redis returned item</param>
+            /// <returns></returns>
+            public string[] SplitRedisString(object source)
+            {
+                var item = source.ToString().Split(new string[] { carriageReturn }, StringSplitOptions.RemoveEmptyEntries);
+                return item;
+            }
+
+            /// <summary>
+            /// Convert redis String to Dictionary.
+            /// </summary>
+            /// <param name="source">input Redis returned item</param>
+            /// <returns></returns>
+            public Dictionary<string, object> ParseInfo(object source)
+            {
+                var dic = SplitRedisString(source)
+                    .Where(x => x.Contains(delimiter))
+                    .Select(x => x.Split(delimiter))
+                    .ToDictionary(kv => kv[0], kv =>
+                    {
+                        var split = kv[1].Split(valueDelimiter);
+                        if (split.Length == 1) return (object)split[0];
+                        return split.Select(x => x.Split(valueDicDelimiter))
+                            .Select(xs => Tuple.Create(xs[0], xs[1]))
+                            .ToArray();
+                    });
+                return dic;
+            }
+        }
     }
 }
