@@ -319,7 +319,7 @@ namespace Redis.Protocol
             }
         }
 
-        public class InfoCommand
+        public class ParseRedisCommand
         {
             readonly string carriageReturn = "\r\n";
             readonly char delimiter = ':';
@@ -327,7 +327,7 @@ namespace Redis.Protocol
             readonly char valueDicDelimiter = '=';
 
             /// <summary>
-            /// Split Redis return string to string[] with Carriage Return
+            /// Split Redis return string to string[] for Carriage Return
             /// </summary>
             /// <param name="source">input Redis returned item</param>
             /// <returns></returns>
@@ -338,9 +338,9 @@ namespace Redis.Protocol
             }
 
             /// <summary>
-            /// Convert redis String to Dictionary.
+            /// Convert redis info result string to Dictionary.
             /// </summary>
-            /// <param name="source">input Redis returned item</param>
+            /// <param name="source">input Redis info returned item</param>
             /// <returns></returns>
             public Dictionary<string, object> ParseInfo(object source)
             {
@@ -361,6 +361,27 @@ namespace Redis.Protocol
                         });
                     });
                 return dic;
+            }
+
+            /// <summary>
+            /// Convert redis config result string to Dictionary.
+            /// </summary>
+            /// <param name="source">input Redis config returned item</param>
+            /// <returns></returns>
+            public Dictionary<string, string> ParseConfig(object source)
+            {
+                var items = ((object[])source).Select(x => x.ToString()).ToArray(); // force cast to string[]
+                var dictionary = new Dictionary<string, string>();
+                switch (items.Length)
+                {
+                    case 1: dictionary[items[0]] = "";
+                        break;
+                    case 2: dictionary[items[0]] = items[1];
+                        break;
+                    default:
+                        break;
+                }
+                return dictionary;
             }
         }
     }
