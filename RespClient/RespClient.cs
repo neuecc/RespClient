@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -319,7 +320,7 @@ namespace Redis.Protocol
             }
         }
 
-        public class InfoCommand
+        public class ParseRedisCommand
         {
             readonly string carriageReturn = "\r\n";
             readonly char delimiter = ':';
@@ -327,24 +328,30 @@ namespace Redis.Protocol
             readonly char valueDicDelimiter = '=';
 
             /// <summary>
-            /// Split Redis return string to string[] with Carriage Return
+            /// Cast Redis return object to string / string[]
             /// </summary>
             /// <param name="source">input Redis returned item</param>
             /// <returns></returns>
-            public string[] SplitRedisString(object source)
+            private string[] CastString(object source)
             {
-                var item = source.ToString().Split(new string[] { carriageReturn }, StringSplitOptions.RemoveEmptyEntries);
-                return item;
+                var item = source as string;
+                if (item != null) return new[] { item };
+
+                var items = source as IEnumerable<object>;
+                if (items != null) return items.Cast<string>().ToArray();
+
+                return new string[0];
             }
 
             /// <summary>
-            /// Convert redis String to Dictionary.
+            /// Convert redis info result string to Dictionary.
             /// </summary>
-            /// <param name="source">input Redis returned item</param>
+            /// <param name="source">input Redis info returned item</param>
             /// <returns></returns>
             public Dictionary<string, object> ParseInfo(object source)
             {
-                var dic = SplitRedisString(source)
+                var dic = CastString(source)
+                    .SelectMany(x => x.Split(new string[] { carriageReturn }, StringSplitOptions.RemoveEmptyEntries))
                     .Where(x => x.Contains(delimiter))
                     .Select(x => x.Split(delimiter))
                     .ToDictionary(kv => kv[0], kv =>
@@ -361,6 +368,28 @@ namespace Redis.Protocol
                         });
                     });
                 return dic;
+            }
+
+            /// <summary>
+            /// Convert redis config result string to Dictionary.
+            /// </summary>
+            /// <param name="source">input Redis config returned item</param>
+            /// <returns></returns>
+            public Dictionary<string, string> ParseConfig(object source)
+            {
+                var dictionary = new Dictionary<string, string>();
+
+                var items = CastString(source);
+                switch (items.Length)
+                {
+                    case 1: dictionary[items[0]] = "";
+                        break;
+                    case 2: dictionary[items[0]] = items[1];
+                        break;
+                    default:
+                        break;
+                }
+                return dictionary;
             }
         }
     }

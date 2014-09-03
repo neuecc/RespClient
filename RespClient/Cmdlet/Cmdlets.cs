@@ -157,7 +157,7 @@ namespace Redis.PowerShell.Cmdlet
         protected override void ProcessRecord()
         {
             if (Global.PipelineCommand == null) throw new InvalidOperationException("Pipeline is not beginning");
-            
+
             try
             {
                 var results = Global.PipelineCommand.Execute();
@@ -173,7 +173,7 @@ namespace Redis.PowerShell.Cmdlet
     /// <summary>
     /// Get Redis info with info command.
     /// </summary>
-    /// <param name="All">change "info" to "info all".</param>
+    /// <param name="InfoType">Add specific info selector.</param>
     [Cmdlet(VerbsCommon.Get, "RedisInfo")]
     public class GetRedisInfoCommand : System.Management.Automation.Cmdlet
     {
@@ -181,7 +181,7 @@ namespace Redis.PowerShell.Cmdlet
         public RedisCommandInfoType InfoType { get; set; }
 
         private string Command = "info";
-        
+
         protected override void BeginProcessing()
         {
             if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
@@ -231,10 +231,44 @@ namespace Redis.PowerShell.Cmdlet
             // no pipeline mode
             var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
 
-            // parse string to List
-            var InfoCommand = new Redis.Protocol.RespClient.InfoCommand();
-            var dicationary = InfoCommand.ParseInfo(value);
+            // parse string to Dictionarys
+            var infoCommand = new Redis.Protocol.RespClient.ParseRedisCommand();
+            var dicationary = infoCommand.ParseInfo(value);
             foreach (var x in dicationary) { this.WriteObject(x); }
+        }
+    }
+
+    /// <summary>
+    /// Get Redis Config command.
+    /// Make sure you have created pipeline.
+    /// </summary>
+    /// <param name="Key">input config name to obtain. e.g. save</param>
+    [Cmdlet(VerbsCommon.Get, "RedisConfig")]
+    public class GetRedisConfig : System.Management.Automation.Cmdlet
+    {
+        [Parameter(ParameterSetName = "Key", Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        public string[] Key { get; set; }
+
+        protected override void BeginProcessing()
+        {
+            if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
+
+        }
+
+        protected override void EndProcessing()
+        {
+            foreach (var k in Key)
+            {
+                var Command = "config get" + " " + k;
+
+                // no pipeline mode
+                var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
+
+                // parse string to Dictionary
+                var configCommand = new Redis.Protocol.RespClient.ParseRedisCommand();
+                var dictionary = configCommand.ParseConfig(value);
+                this.WriteObject(dictionary);
+            }
         }
     }
 }
