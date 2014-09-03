@@ -335,10 +335,15 @@ namespace Redis.Protocol
                     .ToDictionary(kv => kv[0], kv =>
                     {
                         var split = kv[1].Split(valueDelimiter);
-                        if (split.Length == 1) return (object)split[0];
-                        return split.Select(x => x.Split(valueDicDelimiter))
-                            .Select(xs => Tuple.Create(xs[0], xs[1]))
-                            .ToArray();
+                        if (split.Length == 1) return (object)split[0]; // value not contains valueDelimiter
+
+                        // check value contains valueDicDelimiter
+                        return split.Select(xs =>
+                        {
+                            var valueSplit = xs.Split(valueDicDelimiter);
+                            if (valueSplit.Length == 1) return (object)valueSplit[0]; // value not contains valueDicDelimiter
+                            return Tuple.Create(valueSplit[0], valueSplit[1]);
+                        });
                     });
                 return dic;
             }
