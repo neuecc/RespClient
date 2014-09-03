@@ -16,6 +16,21 @@ namespace Redis.Protocol
         Arrays = (byte)'*'
     }
 
+    public enum RedisCommandInfoType : byte
+    {
+        None,
+        Server,
+        Clients,
+        Memory,
+        Persistence,
+        Stats,
+        Replication,
+        CPU,
+        KeySpace,
+        CommandStats,
+        All
+    }
+
     public class RespClient : IDisposable
     {
         const string TerminateStrings = "\r\n";
