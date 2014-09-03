@@ -157,7 +157,7 @@ namespace Redis.PowerShell.Cmdlet
         protected override void ProcessRecord()
         {
             if (Global.PipelineCommand == null) throw new InvalidOperationException("Pipeline is not beginning");
-
+            
             try
             {
                 var results = Global.PipelineCommand.Execute();
@@ -177,21 +177,57 @@ namespace Redis.PowerShell.Cmdlet
     [Cmdlet(VerbsCommon.Get, "RedisInfo")]
     public class GetRedisInfoCommand : System.Management.Automation.Cmdlet
     {
-        [Parameter(ParameterSetName = "All", Position = 0, Mandatory = false, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
-        public SwitchParameter All { get; set; }
+        [Parameter(ParameterSetName = "InfoType", Position = 0, Mandatory = false, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        public RedisCommandInfoType InfoType { get; set; }
 
         private string Command = "info";
-
+        
         protected override void BeginProcessing()
         {
             if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
 
-            // use "info all"
-            if (All == true) { Command = Command + " " + "all"; }
+            // use "info xxxx"
+            switch (InfoType)
+            {
+                case RedisCommandInfoType.None:
+                    break;
+                case RedisCommandInfoType.Server:
+                    Command = Command + " " + RedisCommandInfoType.Server;
+                    break;
+                case RedisCommandInfoType.Clients:
+                    Command = Command + " " + RedisCommandInfoType.Clients;
+                    break;
+                case RedisCommandInfoType.Memory:
+                    Command = Command + " " + RedisCommandInfoType.Memory;
+                    break;
+                case RedisCommandInfoType.Persistence:
+                    Command = Command + " " + RedisCommandInfoType.Persistence;
+                    break;
+                case RedisCommandInfoType.Stats:
+                    Command = Command + " " + RedisCommandInfoType.Stats;
+                    break;
+                case RedisCommandInfoType.Replication:
+                    Command = Command + " " + RedisCommandInfoType.Replication;
+                    break;
+                case RedisCommandInfoType.CPU:
+                    Command = Command + " " + RedisCommandInfoType.CPU;
+                    break;
+                case RedisCommandInfoType.KeySpace:
+                    Command = Command + " " + RedisCommandInfoType.KeySpace;
+                    break;
+                case RedisCommandInfoType.CommandStats:
+                    Command = Command + " " + RedisCommandInfoType.CommandStats;
+                    break;
+                case RedisCommandInfoType.All:
+                    Command = Command + " " + RedisCommandInfoType.All;
+                    break;
+                default:
+                    break;
+            }
         }
 
         protected override void EndProcessing()
-        {            
+        {
             // no pipeline mode
             var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
 
