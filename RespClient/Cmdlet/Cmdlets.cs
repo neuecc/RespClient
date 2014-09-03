@@ -242,12 +242,12 @@ namespace Redis.PowerShell.Cmdlet
     /// Get Redis Config command.
     /// Make sure you have created pipeline.
     /// </summary>
-    /// <param name="parameter">input config name to obtain. e.g. save</param>
+    /// <param name="Key">input config name to obtain. e.g. save</param>
     [Cmdlet(VerbsCommon.Get, "RedisConfig")]
     public class GetRedisConfig : System.Management.Automation.Cmdlet
     {
-        [Parameter(ParameterSetName = "parameter", Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
-        public string[] parameter { get; set; }
+        [Parameter(ParameterSetName = "Key", Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        public string[] Key { get; set; }
 
         protected override void BeginProcessing()
         {
@@ -257,9 +257,9 @@ namespace Redis.PowerShell.Cmdlet
 
         protected override void EndProcessing()
         {
-            foreach (var xs in parameter)
+            foreach (var k in Key)
             {
-                var Command = "config get" + " " + xs;
+                var Command = "config get" + " " + k;
 
                 // no pipeline mode
                 var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
