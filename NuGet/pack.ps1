@@ -5,6 +5,6 @@ $versionStr = "{0}.{1}.{2}" -f ($version.Major, $version.Minor, $version.Build)
 Write-Host "Setting .nuspec version tag to $versionStr" -ForegroundColor Green
 $content = Get-Content $root\NuGet\RespClient.nuspec 
 $content = $content -replace '\$version\$',$versionStr
-$content | Out-File $root\nuget\MarkdownLog.compiled.nuspec -Force
+$content | Out-File $root\nuget\RespClient.compiled.nuspec -Force
 
-& $root\NuGet\NuGet.exe pack $root\nuget\MarkdownLog.compiled.nuspec
+& $root\NuGet\NuGet.exe pack $root\nuget\RespClient.compiled.nuspec
