@@ -31,7 +31,8 @@ namespace Redis.PowerShell.Cmdlet
         {
             // existing connection will be disposed.
             if (Global.RespClient != null) Global.RespClient.Dispose();
-
+            
+            this.WriteVerbose(string.Format("trying connect to server : {0}:{1}", Host, Port));
             var client = new RespClient(Host ?? "127.0.0.1", Port ?? 6379, IoTimeout ?? -1);
             client.Connect();
 
@@ -50,6 +51,7 @@ namespace Redis.PowerShell.Cmdlet
         {
             if (Global.RespClient != null)
             {
+                this.WriteVerbose("showing current Redis connection info");
                 this.WriteObject(Global.RespClient);
             }
         }
@@ -89,12 +91,14 @@ namespace Redis.PowerShell.Cmdlet
 
             if (Global.PipelineCommand == null)
             {
+                this.WriteVerbose(string.Format("send command : {0}", Command));
                 var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
                 this.WriteObject(value);
             }
             else
             {
                 // pipeline mode
+                this.WriteVerbose(string.Format("queue command to pipeline : {0}", Command));
                 Global.PipelineCommand.QueueCommand(Command, x => Encoding.UTF8.GetString(x));
             }
         }
@@ -182,14 +186,15 @@ namespace Redis.PowerShell.Cmdlet
 
         private string Command = "info";
 
-        protected override void BeginProcessing()
+        protected override void ProcessRecord()
         {
             if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
 
             // use "info xxxx"
             switch (InfoType)
             {
-                case RedisCommandInfoType.None:
+                case RedisCommandInfoType.Default:
+                    Command = Command + " " + RedisCommandInfoType.Default;
                     break;
                 case RedisCommandInfoType.Server:
                     Command = Command + " " + RedisCommandInfoType.Server;
@@ -224,14 +229,12 @@ namespace Redis.PowerShell.Cmdlet
                 default:
                     break;
             }
-        }
 
-        protected override void EndProcessing()
-        {
             // no pipeline mode
+            this.WriteVerbose(string.Format("running command : {0}", Command));
             var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
 
-            // parse string to Dictionarys
+            // parse redis info
             var infoCommand = new Redis.Protocol.RespClient.ParseRedisCommand();
             var dicationary = infoCommand.ParseInfo(value);
             foreach (var x in dicationary) { this.WriteObject(x); }
@@ -255,16 +258,17 @@ namespace Redis.PowerShell.Cmdlet
 
         }
 
-        protected override void EndProcessing()
+        protected override void ProcessRecord()
         {
             foreach (var k in Key)
             {
                 var Command = "config get" + " " + k;
 
                 // no pipeline mode
+                this.WriteVerbose(string.Format("running command : {0}", Command));
                 var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
 
-                // parse string to Dictionary
+                // parse redis config
                 var configCommand = new Redis.Protocol.RespClient.ParseRedisCommand();
                 var dictionary = configCommand.ParseConfig(value);
                 this.WriteObject(dictionary);
