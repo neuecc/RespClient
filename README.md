@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/sakp478vfl0sxd3r/branch/master)](https://ci.appveyor.com/project/guitarrapc/respclient/branch/master)
+
 RespClient
 ==========
 
