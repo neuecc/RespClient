@@ -1,15 +1,21 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RespClient", "RespClient\RespClient.csproj", "{B58B0163-5CCF-4566-95FF-5FB7B8FA7CB6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NuGet", "NuGet", "{509C8E3E-E15B-457A-B090-4DF4898A39BB}"
 	ProjectSection(SolutionItems) = preProject
 		NuGet\pack.bat = NuGet\pack.bat
+		pack.ps1 = pack.ps1
 		NuGet\push.bat = NuGet\push.bat
 		NuGet\RespClient.nuspec = NuGet\RespClient.nuspec
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{D12AA023-A4E5-422B-8E0C-502F368856C8}"
+	ProjectSection(SolutionItems) = preProject
+		appveyor.yml = appveyor.yml
 	EndProjectSection
 EndProject
 Global
