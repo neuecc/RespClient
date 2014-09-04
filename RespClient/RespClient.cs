@@ -19,7 +19,7 @@ namespace Redis.Protocol
 
     public enum RedisCommandInfoType : byte
     {
-        None,
+        Default,
         Server,
         Clients,
         Memory,
