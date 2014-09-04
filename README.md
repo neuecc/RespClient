@@ -38,7 +38,7 @@ Send-RedisCommand "incr testc"
 Send-RedisCommand "get test"
 Execute-RedisPipeline
 
-# Cleanup Connection explicitly
+# Cleanup Connection explicitly 
 Disconnect-RedisServer
 ```
 
