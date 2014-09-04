@@ -53,7 +53,7 @@ build:
   publish_nuget: false            # package projects with .nuspec files and push to artifacts
 
   # MSBuild verbosity level
-  verbosity: detailed             # quiet|minimal|normal|detailed
+  verbosity: minimal              # quiet|minimal|normal|detailed
 
 # scripts to run before build
 before_build:
