@@ -60,15 +60,13 @@ before_build:
 
 # scripts to run after build
 after_build:
+  - ps: .\Nuget\pack.ps1
 
 # to run your custom scripts instead of automatic MSBuild
 build_script:
 
 # to disable automatic builds
 #build: off
-
-after_build:
-  - ps: .\Nuget\pack.ps1
 
 #---------------------------------#
 #      artifacts configuration    #
