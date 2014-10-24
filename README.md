@@ -13,11 +13,11 @@ Install
 ---
 Binary is registered at NuGet, [RespClient](https://www.nuget.org/packages/RespClient/).
 ```
-# Standalone PowerShell Commandlet and .NET Client, requires System.Management.Automation
+# Standalone PowerShell Cmdlet and .NET Client, requires System.Management.Automation
 PM> Install-Package RespClient
 ```
 
-PowerShell Commandlet
+PowerShell Cmdlet
 ---
 ```PowerShell
 # Module is provided by dll 
