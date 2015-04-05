@@ -3,6 +3,7 @@ using System;
 using System.Linq;
 using System.Management.Automation;
 using System.Text;
+using Redis.Extension;
 
 namespace Redis.PowerShell.Cmdlet
 {
@@ -31,7 +32,7 @@ namespace Redis.PowerShell.Cmdlet
         {
             // existing connection will be disposed.
             if (Global.RespClient != null) Global.RespClient.Dispose();
-            
+
             this.WriteVerbose(string.Format("trying connect to server : {0}:{1}", Host, Port));
             var client = new RespClient(Host ?? "127.0.0.1", Port ?? 6379, IoTimeout ?? -1);
             client.Connect();
@@ -175,16 +176,31 @@ namespace Redis.PowerShell.Cmdlet
     }
 
     /// <summary>
-    /// Get Redis info with info command.
+    /// Get Redis info.
     /// </summary>
     /// <param name="InfoType">Add specific info selector.</param>
+    [OutputType(typeof(RedisInfo[]))]
     [Cmdlet(VerbsCommon.Get, "RedisInfo")]
     public class GetRedisInfoCommand : System.Management.Automation.Cmdlet
     {
-        [Parameter(ParameterSetName = "InfoType", Position = 0, Mandatory = false, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
-        public RedisCommandInfoType InfoType { get; set; }
+        [Parameter(Position = 0, Mandatory = false, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        public RedisInfoKeyType[] Key { get; set; }
 
-        private string Command = "info";
+        [Parameter(Position = 1, Mandatory = false, ValueFromPipelineByPropertyName = true)]
+        public RedisInfoSubkeyType[] SubKey { get; set; }
+        
+        [Parameter(Position = 2, Mandatory = false, ValueFromPipelineByPropertyName = true)]
+        public RedisInfoInfoType InfoType { get; set; }
+
+        public GetRedisInfoCommand()
+        {
+            // Default value
+            Key = null;
+            SubKey = null;
+            InfoType = RedisInfoInfoType.Default;
+        }
+        
+        private string _command = "info";
 
         protected override void ProcessRecord()
         {
@@ -193,56 +209,59 @@ namespace Redis.PowerShell.Cmdlet
             // use "info xxxx"
             switch (InfoType)
             {
-                case RedisCommandInfoType.Default:
-                    Command = Command + " " + RedisCommandInfoType.Default;
+                case RedisInfoInfoType.Default:
+                    this._command = this._command + " " + RedisInfoInfoType.Default;
                     break;
-                case RedisCommandInfoType.Server:
-                    Command = Command + " " + RedisCommandInfoType.Server;
+                case RedisInfoInfoType.Server:
+                    this._command = this._command + " " + RedisInfoInfoType.Server;
                     break;
-                case RedisCommandInfoType.Clients:
-                    Command = Command + " " + RedisCommandInfoType.Clients;
+                case RedisInfoInfoType.Clients:
+                    this._command = this._command + " " + RedisInfoInfoType.Clients;
                     break;
-                case RedisCommandInfoType.Memory:
-                    Command = Command + " " + RedisCommandInfoType.Memory;
+                case RedisInfoInfoType.Memory:
+                    this._command = this._command + " " + RedisInfoInfoType.Memory;
                     break;
-                case RedisCommandInfoType.Persistence:
-                    Command = Command + " " + RedisCommandInfoType.Persistence;
+                case RedisInfoInfoType.Persistence:
+                    this._command = this._command + " " + RedisInfoInfoType.Persistence;
                     break;
-                case RedisCommandInfoType.Stats:
-                    Command = Command + " " + RedisCommandInfoType.Stats;
+                case RedisInfoInfoType.Stats:
+                    this._command = this._command + " " + RedisInfoInfoType.Stats;
                     break;
-                case RedisCommandInfoType.Replication:
-                    Command = Command + " " + RedisCommandInfoType.Replication;
+                case RedisInfoInfoType.Replication:
+                    this._command = this._command + " " + RedisInfoInfoType.Replication;
                     break;
-                case RedisCommandInfoType.CPU:
-                    Command = Command + " " + RedisCommandInfoType.CPU;
+                case RedisInfoInfoType.CPU:
+                    this._command = this._command + " " + RedisInfoInfoType.CPU;
                     break;
-                case RedisCommandInfoType.KeySpace:
-                    Command = Command + " " + RedisCommandInfoType.KeySpace;
+                case RedisInfoInfoType.KeySpace:
+                    this._command = this._command + " " + RedisInfoInfoType.KeySpace;
                     break;
-                case RedisCommandInfoType.CommandStats:
-                    Command = Command + " " + RedisCommandInfoType.CommandStats;
+                case RedisInfoInfoType.CommandStats:
+                    this._command = this._command + " " + RedisInfoInfoType.CommandStats;
                     break;
-                case RedisCommandInfoType.All:
-                    Command = Command + " " + RedisCommandInfoType.All;
+                case RedisInfoInfoType.All:
+                    this._command = this._command + " " + RedisInfoInfoType.All;
                     break;
                 default:
                     break;
             }
 
-            // no pipeline mode
-            this.WriteVerbose(string.Format("running command : {0}", Command));
-            var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
+            // no pipeline mode send command
+            this.WriteVerbose(string.Format("running command : {0}", this._command));
+            var redisReturnObject = Global.RespClient.SendCommand(this._command, x => Encoding.UTF8.GetString(x));
 
             // parse redis info
-            var infoCommand = new Redis.Protocol.RespClient.ParseRedisCommand();
-            var dicationary = infoCommand.ParseInfo(value);
-            foreach (var x in dicationary) { this.WriteObject(x); }
+            var redisInfo = redisReturnObject.AsRedisInfo().FilterKeySubKey(Key, SubKey);
+            
+            // Output elements
+            foreach (var item in redisInfo)
+                this.WriteObject(item);
         }
+
     }
 
     /// <summary>
-    /// Get Redis Config command.
+    /// Get Redis Config.
     /// Make sure you have created pipeline.
     /// </summary>
     /// <param name="Key">input config name to obtain. e.g. save</param>
@@ -252,14 +271,10 @@ namespace Redis.PowerShell.Cmdlet
         [Parameter(ParameterSetName = "Key", Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         public string[] Key { get; set; }
 
-        protected override void BeginProcessing()
+        protected override void ProcessRecord()
         {
             if (Global.RespClient == null) throw new InvalidOperationException("Server is not connecting");
 
-        }
-
-        protected override void ProcessRecord()
-        {
             foreach (var k in Key)
             {
                 var Command = "config get" + " " + k;
@@ -269,8 +284,7 @@ namespace Redis.PowerShell.Cmdlet
                 var value = Global.RespClient.SendCommand(Command, x => Encoding.UTF8.GetString(x));
 
                 // parse redis config
-                var configCommand = new Redis.Protocol.RespClient.ParseRedisCommand();
-                var dictionary = configCommand.ParseConfig(value);
+                var dictionary = value.ToRedisConfigDictionary();
                 this.WriteObject(dictionary);
             }
         }
