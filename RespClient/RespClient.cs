@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 
@@ -169,7 +170,7 @@ namespace Redis.Protocol
         public int IoTimeout { get { return ioTimeout; } }
 
         Socket socket;
-        BufferedStream stream;
+        Stream stream;
 
         public RespClient(string host = "127.0.0.1", int port = 6379, int ioTimeout = -1)
         {
@@ -178,7 +179,7 @@ namespace Redis.Protocol
             this.ioTimeout = ioTimeout;
         }
 
-        public void Connect()
+        public void Connect(bool useSSL = false)
         {
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp)
             {
@@ -193,7 +194,16 @@ namespace Redis.Protocol
                 socket = null;
                 return;
             }
-            stream = new BufferedStream(new NetworkStream(socket), 16 * 1024);
+
+            int buffSize = 16 * 1024;
+            if (useSSL)
+            {
+                var sslStream = new SslStream(new NetworkStream(socket));
+                sslStream.AuthenticateAsClient(host);
+                stream = new BufferedStream(sslStream, buffSize);
+            }
+            else
+                stream = new BufferedStream(new NetworkStream(socket), buffSize);
         }
 
         string ReadFirstLine()
@@ -248,7 +258,8 @@ namespace Redis.Protocol
 
             try
             {
-                socket.Send(command);
+                stream.Write(command, 0, command.Length);
+                stream.Flush();
             }
             catch (SocketException)
             {
