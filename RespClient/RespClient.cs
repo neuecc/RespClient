@@ -227,6 +227,21 @@ namespace Redis.Protocol
             return sb.ToString();
         }
 
+        void ReadFull(byte[] buffer)
+        {
+            int size = buffer.Length;
+            int offset = 0;
+            while(offset < buffer.Length)
+            {
+                var n = stream.Read(buffer, offset, size - offset);
+                if (n == 0)
+                {
+                    throw new EndOfStreamException();
+                }
+                offset += n;
+            }
+        }
+
         byte[] BuildBinarySafeCommand(string command, byte[][] arguments)
         {
             var firstLine = Encoding.GetBytes((char)RespType.Arrays + (arguments.Length + 1).ToString() + TerminateStrings);
@@ -287,7 +302,7 @@ namespace Redis.Protocol
                             return null;
                         }
                         var buffer = new byte[length];
-                        stream.Read(buffer, 0, length);
+                        ReadFull(buffer);
 
                         ReadFirstLine(); // read terminate
 
