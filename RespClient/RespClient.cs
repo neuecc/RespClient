@@ -231,7 +231,7 @@ namespace Redis.Protocol
         {
             int size = buffer.Length;
             int offset = 0;
-            while(offset < buffer.Length)
+            while(offset < size)
             {
                 var n = stream.Read(buffer, offset, size - offset);
                 if (n == 0)
