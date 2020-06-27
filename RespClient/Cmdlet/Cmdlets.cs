@@ -28,6 +28,9 @@ namespace Redis.PowerShell.Cmdlet
         [Parameter(Mandatory = false, Position = 2, ValueFromPipelineByPropertyName = true)]
         public int? IoTimeout { get; set; }
 
+        [Parameter(Mandatory = false, Position = 3, ValueFromPipelineByPropertyName = true)]
+        public bool UseSSL { get; set; }
+
         protected override void BeginProcessing()
         {
             // existing connection will be disposed.
@@ -35,7 +38,7 @@ namespace Redis.PowerShell.Cmdlet
 
             this.WriteVerbose(string.Format("trying connect to server : {0}:{1}", Host, Port));
             var client = new RespClient(Host ?? "127.0.0.1", Port ?? 6379, IoTimeout ?? -1);
-            client.Connect();
+            client.Connect(useSSL: UseSSL);
 
             Global.RespClient = client;
         }
